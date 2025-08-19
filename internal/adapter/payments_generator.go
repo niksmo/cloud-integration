@@ -16,6 +16,7 @@ type PaymentsGenerator struct {
 	tick    time.Duration
 	buf     bytes.Buffer
 	a       []byte
+	cnt     int
 }
 
 func NewPaymentsGenerator(s port.PaymentSender, genTick time.Duration) *PaymentsGenerator {
@@ -33,9 +34,11 @@ func (g *PaymentsGenerator) Run(ctx context.Context) {
 	ticker := time.NewTicker(g.tick)
 	defer ticker.Stop()
 
+	log.Info("start generate payments in loop")
 	for {
 		select {
 		case <-ctx.Done():
+			log.Info("stopped", "totalPayments", g.cnt)
 			return
 		case <-ticker.C:
 			p := g.createRandPayment()
@@ -49,6 +52,7 @@ func (g *PaymentsGenerator) Run(ctx context.Context) {
 
 func (g *PaymentsGenerator) createRandPayment() domain.Payment {
 	p := domain.NewPayment(g.randName(), g.randAmount())
+	g.cnt++
 	return p
 }
 

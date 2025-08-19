@@ -6,8 +6,8 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
+	"github.com/niksmo/cloud-integration/config"
 	"github.com/niksmo/cloud-integration/internal/adapter"
 	"github.com/niksmo/cloud-integration/internal/core/service"
 )
@@ -16,12 +16,14 @@ func main() {
 	sigCtx, cancel := signalContext()
 	defer cancel()
 
-	initLogger()
+	cfg := config.Load()
+
+	initLogger(cfg.LogLevel)
 
 	slog.Info("application is started")
 
 	service := service.New()
-	paymentsGen := adapter.NewPaymentsGenerator(service, 3*time.Second)
+	paymentsGen := adapter.NewPaymentsGenerator(service, cfg.PaymentsGenTick)
 
 	go paymentsGen.Run(sigCtx)
 
@@ -36,8 +38,8 @@ func signalContext() (context.Context, context.CancelFunc) {
 	)
 }
 
-func initLogger() {
-	opts := &slog.HandlerOptions{Level: slog.LevelDebug}
+func initLogger(level slog.Leveler) {
+	opts := &slog.HandlerOptions{Level: level}
 	logger := slog.New(slog.NewJSONHandler(os.Stderr, opts))
 	slog.SetDefault(logger)
 }

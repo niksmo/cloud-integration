@@ -4,7 +4,10 @@ import (
 	"context"
 
 	"github.com/niksmo/cloud-integration/internal/core/domain"
+	"github.com/niksmo/cloud-integration/internal/core/port"
 )
+
+var _ port.PaymentSender = (*Service)(nil)
 
 // generate messages for produce
 // print messages after kafka
