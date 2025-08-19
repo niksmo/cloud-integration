@@ -24,20 +24,27 @@ type Config struct {
 }
 
 func Load() Config {
-	cmdLine := pflag.NewFlagSet(os.Args[0], pflag.ExitOnError)
-
-	cmdLine.Duration(genTickFlag, genTickDefault, "payments generator tick duration")
-	cmdLine.Int(logLevelFlag, int(logLevelFlagDefault), "log level")
-	_ = cmdLine.Parse(os.Args[1:])
-	viper.BindPFlags(cmdLine)
-
-	_ = viper.BindEnv(genTickFlag, getEnvVar(genTickFlag))
-	_ = viper.BindEnv(logLevelFlag, getEnvVar(logLevelFlag))
-
+	initArgs()
+	initEnv()
 	return Config{
 		LogLevel:        slog.Level(viper.GetInt(logLevelFlag)),
 		PaymentsGenTick: viper.GetDuration(genTickFlag),
 	}
+}
+
+func initArgs() {
+	cmdLine := pflag.NewFlagSet(os.Args[0], pflag.ExitOnError)
+
+	cmdLine.Duration(genTickFlag, genTickDefault, "payments generator tick duration")
+	cmdLine.Int(logLevelFlag, int(logLevelFlagDefault), "log level (default \"INFO\")")
+
+	_ = cmdLine.Parse(os.Args[1:])
+	viper.BindPFlags(cmdLine)
+}
+
+func initEnv() {
+	_ = viper.BindEnv(genTickFlag, getEnvVar(genTickFlag))
+	_ = viper.BindEnv(logLevelFlag, getEnvVar(logLevelFlag))
 }
 
 func getEnvVar(input string) string {
