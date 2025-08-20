@@ -91,8 +91,26 @@ func (c KafkaConsumer) Run(ctx context.Context) {
 				log.Error("failed to consume messages", "err", err)
 				c.slowDown()
 			}
+			err = c.commit(ctx)
+			if err != nil {
+				log.Error("failed to commit offset", "err", err)
+			}
 		}
 	}
+}
+
+func (c KafkaConsumer) commit(ctx context.Context) error {
+	const op = "KafkaConsumer.commit"
+	err := ctx.Err()
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	err = c.cl.CommitUncommittedOffsets(ctx)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+	return nil
 }
 
 func (c KafkaConsumer) consume(ctx context.Context) error {

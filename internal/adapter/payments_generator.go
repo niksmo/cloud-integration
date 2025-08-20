@@ -56,8 +56,11 @@ func (g *PaymentsGenerator) Run(ctx context.Context) {
 }
 
 func (g *PaymentsGenerator) createRandPayment() domain.Payment {
+	const op = "PaymentsGenerator.createRandPayment"
+	log := slog.With("op", op)
 	p := domain.NewPayment(g.randName(), g.randAmount())
 	g.cnt++
+	log.Info("generate payment", "payment", p)
 	return p
 }
 
