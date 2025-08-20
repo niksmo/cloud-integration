@@ -3,6 +3,7 @@ package adapter
 import (
 	"context"
 	"fmt"
+	"log/slog"
 
 	"github.com/niksmo/cloud-integration/internal/core/port"
 	"github.com/niksmo/cloud-integration/pkg/dialer"
@@ -47,8 +48,13 @@ func NewKafkaConsumer(
 }
 
 func (c KafkaConsumer) Close() {
+	const op = "KafkaConsumer.Close"
+	log := slog.With("op", op)
+	log.Info("closing consumer...")
 	c.cl.Close()
+	log.Info("consumer is closed")
 }
 
 func (c KafkaConsumer) Run(ctx context.Context) {
+
 }

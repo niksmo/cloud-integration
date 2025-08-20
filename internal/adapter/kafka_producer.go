@@ -96,9 +96,6 @@ func (p KafkaProducer) produce(ctx context.Context, r *kgo.Record) error {
 
 	log := slog.With("op", op)
 
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
-	defer cancel()
-
 	start := time.Now()
 	res := p.cl.ProduceSync(ctx, r)
 	if err := res.FirstErr(); err != nil {
