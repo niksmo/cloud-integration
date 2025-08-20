@@ -2,15 +2,13 @@ package service
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/niksmo/cloud-integration/internal/core/domain"
 	"github.com/niksmo/cloud-integration/internal/core/port"
 )
 
 var _ port.PaymentSender = (*Service)(nil)
-
-// generate messages for produce
-// print messages after kafka
 
 type Service struct {
 	producer port.PaymentProducer
@@ -21,5 +19,18 @@ func New(p port.PaymentProducer) Service {
 }
 
 func (s Service) SendPayment(ctx context.Context, p domain.Payment) error {
+	const op = "Service.SendPayment"
+	if err := ctx.Err(); err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	err := s.producer.ProducePayment(ctx, p)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
 	return nil
+}
+
+func (s Service) ReceivePayment(p domain.Payment) {
+	// print
 }

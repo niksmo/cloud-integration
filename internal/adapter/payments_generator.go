@@ -3,6 +3,7 @@ package adapter
 import (
 	"bytes"
 	"context"
+	"errors"
 	"log/slog"
 	"math/rand/v2"
 	"time"
@@ -44,6 +45,10 @@ func (g *PaymentsGenerator) Run(ctx context.Context) {
 			p := g.createRandPayment()
 			err := g.service.SendPayment(ctx, p)
 			if err != nil {
+				if errors.Is(err, context.Canceled) {
+					log.Info("context cancaled")
+					continue
+				}
 				log.Error("failed to send payment", "err", err)
 			}
 		}

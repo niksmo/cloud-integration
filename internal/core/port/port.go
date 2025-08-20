@@ -13,3 +13,7 @@ type PaymentSender interface {
 type PaymentProducer interface {
 	ProducePayment(context.Context, domain.Payment) error
 }
+
+type PaymentReceiver interface {
+	ReceivePayment(domain.Payment)
+}

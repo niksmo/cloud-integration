@@ -12,11 +12,12 @@ import (
 )
 
 type brokerConfig struct {
-	SeedBrokers []string `mapstructure:"seed_brokers"`
-	Topic       string   `mapstructure:"topic"`
-	CARootCert  string   `mapstructure:"ca_root_cert"`
-	User        string   `mapstructure:"user"`
-	Pass        string   `mapstructure:"pass"`
+	SeedBrokers   []string `mapstructure:"seed_brokers"`
+	Topic         string   `mapstructure:"topic"`
+	ConsumerGroup string   `mapstructure:"consumer_group"`
+	CARootCert    string   `mapstructure:"ca_root_cert"`
+	User          string   `mapstructure:"user"`
+	Pass          string   `mapstructure:"pass"`
 }
 
 type Config struct {
@@ -66,6 +67,7 @@ func print(c Config) {
 	PaymentsGenTick=%s
 	SeedBrokers=%q
 	Topic=%q
+	ConsumerGroup=%q
 	CARootCert=%q
 	User=%q
 	Pass=%q
@@ -78,6 +80,7 @@ func print(c Config) {
 		c.PaymentsGenTick,
 		c.Broker.SeedBrokers,
 		c.Broker.Topic,
+		c.Broker.ConsumerGroup,
 		c.Broker.CARootCert,
 		c.Broker.User,
 		c.Broker.Pass,
