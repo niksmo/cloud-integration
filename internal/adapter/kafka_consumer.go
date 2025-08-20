@@ -2,8 +2,11 @@ package adapter
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
+	"strings"
+	"time"
 
 	"github.com/niksmo/cloud-integration/internal/core/port"
 	"github.com/niksmo/cloud-integration/pkg/dialer"
@@ -56,5 +59,43 @@ func (c KafkaConsumer) Close() {
 }
 
 func (c KafkaConsumer) Run(ctx context.Context) {
+	const op = "KafkaConsumer.Run"
+	log := slog.With("op", op)
 
+	errTimeout := 1 * time.Second
+	errTimer := time.NewTimer(errTimeout)
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		default:
+			fetches := c.cl.PollFetches(ctx)
+			if err := fetches.Err0(); err != nil {
+				if errors.Is(err, context.Canceled) {
+					log.Info("context cancaled")
+					continue
+				}
+				log.Error("unexpected error", "err", fmt.Errorf("%s: %w", op, err))
+			}
+
+			var errsData []string
+			fetches.EachError(func(t string, p int32, err error) {
+				if err != nil {
+					errData := fmt.Sprintf(
+						"topic %q partition %d err: %q",
+						t, p, err,
+					)
+					errsData = append(errsData, errData)
+				}
+			})
+
+			if len(errsData) != 0 {
+				err := fmt.Errorf("%s: %s", op, strings.Join(errsData, "; "))
+				log.Error("failed on poll fetches", "err", err)
+				errTimer.Reset(errTimeout)
+				<-errTimer.C
+			}
+
+		}
+	}
 }
