@@ -12,10 +12,12 @@ var _ port.PaymentSender = (*Service)(nil)
 // generate messages for produce
 // print messages after kafka
 
-type Service struct{}
+type Service struct {
+	producer port.PaymentProducer
+}
 
-func New() Service {
-	return Service{}
+func New(p port.PaymentProducer) Service {
+	return Service{p}
 }
 
 func (s Service) SendPayment(ctx context.Context, p domain.Payment) error {

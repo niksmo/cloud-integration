@@ -9,3 +9,7 @@ import (
 type PaymentSender interface {
 	SendPayment(context.Context, domain.Payment) error
 }
+
+type PaymentProducer interface {
+	ProducePayment(context.Context, domain.Payment) error
+}

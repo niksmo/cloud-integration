@@ -22,12 +22,21 @@ func main() {
 
 	slog.Info("application is started")
 
-	service := service.New()
+	producer := adapter.NewKafkaProducer(
+		cfg.Broker.SeedBrokers,
+		cfg.Broker.Topic,
+		cfg.Broker.CARootCert,
+		cfg.Broker.User,
+		cfg.Broker.Pass,
+	)
+
+	service := service.New(producer)
 	paymentsGen := adapter.NewPaymentsGenerator(service, cfg.PaymentsGenTick)
 
 	go paymentsGen.Run(sigCtx)
 
 	<-sigCtx.Done()
+	producer.Close()
 	slog.Info("application is stopped")
 }
 
