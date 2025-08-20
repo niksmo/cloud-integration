@@ -15,5 +15,5 @@ type PaymentProducer interface {
 }
 
 type PaymentReceiver interface {
-	ReceivePayment(domain.Payment)
+	ReceivePayments([]domain.Payment)
 }

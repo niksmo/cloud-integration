@@ -3,12 +3,14 @@ package service
 import (
 	"context"
 	"fmt"
+	"log/slog"
 
 	"github.com/niksmo/cloud-integration/internal/core/domain"
 	"github.com/niksmo/cloud-integration/internal/core/port"
 )
 
 var _ port.PaymentSender = (*Service)(nil)
+var _ port.PaymentReceiver = (*Service)(nil)
 
 type Service struct {
 	producer port.PaymentProducer
@@ -31,6 +33,10 @@ func (s Service) SendPayment(ctx context.Context, p domain.Payment) error {
 	return nil
 }
 
-func (s Service) ReceivePayment(p domain.Payment) {
-	// print
+func (s Service) ReceivePayments(ps []domain.Payment) {
+	const op = "Service.ReceivePayment"
+	log := slog.With("op", op)
+	for _, p := range ps {
+		log.Info("receive payment", "payment", p)
+	}
 }
