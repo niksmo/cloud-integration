@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"log/slog"
 	"os"
 	"strings"
@@ -10,47 +11,52 @@ import (
 	"github.com/spf13/viper"
 )
 
-const (
-	genTickFlag    = "gen-tick"
-	genTickDefault = 3 * time.Second
-
-	logLevelFlag        = "log"
-	logLevelFlagDefault = slog.LevelInfo
-)
-
 type Config struct {
-	LogLevel        slog.Level
-	PaymentsGenTick time.Duration
+	LogLevel        slog.Level    `mapstructure:"log_level"`
+	PaymentsGenTick time.Duration `mapstructure:"payments_gen_tick"`
 }
 
 func Load() Config {
-	initArgs()
-	initEnv()
-	return Config{
-		LogLevel:        slog.Level(viper.GetInt(logLevelFlag)),
-		PaymentsGenTick: viper.GetDuration(genTickFlag),
+	viper.SetConfigFile(getConfigFilepath())
+
+	err := viper.ReadInConfig()
+	if err != nil {
+		die(err)
 	}
+
+	var cfg Config
+	err = viper.UnmarshalExact(&cfg)
+	if err != nil {
+		die(err)
+	}
+
+	print(cfg)
+
+	return cfg
 }
 
-func initArgs() {
+func getConfigFilepath() string {
 	cmdLine := pflag.NewFlagSet(os.Args[0], pflag.ExitOnError)
-
-	cmdLine.Duration(genTickFlag, genTickDefault, "payments generator tick duration")
-	cmdLine.Int(logLevelFlag, int(logLevelFlagDefault), "log level (default \"INFO\")")
-
+	arg := cmdLine.String("config", "/config.yaml", "config file")
 	_ = cmdLine.Parse(os.Args[1:])
-	viper.BindPFlags(cmdLine)
-}
-
-func initEnv() {
-	_ = viper.BindEnv(genTickFlag, getEnvVar(genTickFlag))
-	_ = viper.BindEnv(logLevelFlag, getEnvVar(logLevelFlag))
-}
-
-func getEnvVar(input string) string {
-	res := []string{"CLOUD"}
-	for s := range strings.SplitSeq(input, "-") {
-		res = append(res, strings.ToUpper(s))
+	env, ok := os.LookupEnv("CLOUD_CONFIG_FILE")
+	if ok {
+		return env
 	}
-	return strings.Join(res, "_")
+	return *arg
+}
+
+func die(err error) {
+	fmt.Printf("failed to load config file: %v\n", err)
+	os.Exit(2)
+}
+
+func print(c Config) {
+	tamplate := `
+	LogLevel=%q
+	PaymentsGenTick=%s
+
+`
+	fmt.Println("Loaded config:")
+	fmt.Printf(strings.TrimLeft(tamplate, "\n"), c.LogLevel, c.PaymentsGenTick)
 }

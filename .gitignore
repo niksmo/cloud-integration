@@ -1,2 +1,4 @@
 Bruno
 .DS_Store
+.env
+config.yaml
