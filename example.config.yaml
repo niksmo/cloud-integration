@@ -10,3 +10,7 @@ broker:
   ca_root_cert: exapmle_caRoot.pem
   user: example_user
   pass: example_password
+  schema_registry_urls:
+    - https://host-1.com
+    - https://host-2.com
+    - https://host-3.com

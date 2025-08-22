@@ -12,12 +12,13 @@ import (
 )
 
 type brokerConfig struct {
-	SeedBrokers   []string `mapstructure:"seed_brokers"`
-	Topic         string   `mapstructure:"topic"`
-	ConsumerGroup string   `mapstructure:"consumer_group"`
-	CARootCert    string   `mapstructure:"ca_root_cert"`
-	User          string   `mapstructure:"user"`
-	Pass          string   `mapstructure:"pass"`
+	SeedBrokers        []string `mapstructure:"seed_brokers"`
+	Topic              string   `mapstructure:"topic"`
+	ConsumerGroup      string   `mapstructure:"consumer_group"`
+	CARootCert         string   `mapstructure:"ca_root_cert"`
+	User               string   `mapstructure:"user"`
+	Pass               string   `mapstructure:"pass"`
+	SchemaRegistryURLs []string `mapstructure:"schema_registry_urls"`
 }
 
 type Config struct {
@@ -71,6 +72,7 @@ func print(c Config) {
 	CARootCert=%q
 	User=%q
 	Pass=%q
+	SchemaRegistryURLs=%q
 
 `
 	fmt.Println("Loaded config:")
@@ -84,5 +86,6 @@ func print(c Config) {
 		c.Broker.CARootCert,
 		c.Broker.User,
 		c.Broker.Pass,
+		c.Broker.SchemaRegistryURLs,
 	)
 }
