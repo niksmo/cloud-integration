@@ -72,10 +72,7 @@ func initLogger(level slog.Leveler) {
 func createKafkaClient(cfg config.Config) *kgo.Client {
 	const op = "Main.createKafkaClient"
 
-	tlsConfig, err := createTLSConfig(cfg.Broker.CARootCert)
-	if err != nil {
-		die(op, err)
-	}
+	tlsConfig := createTLSConfig(cfg.Broker.CARootCert)
 
 	auth := scram.Auth{
 		User: cfg.Broker.User,
@@ -105,10 +102,7 @@ func createSerdeSR(
 ) *sr.Serde {
 	const op = "Main.createSerdeSR"
 
-	tlsConfig, err := createTLSConfig(cfg.Broker.CARootCert)
-	if err != nil {
-		die(op, err)
-	}
+	tlsConfig := createTLSConfig(cfg.Broker.CARootCert)
 
 	cl, err := sr.NewClient(
 		sr.URLs(cfg.Broker.SchemaRegistryURLs...),
@@ -136,22 +130,24 @@ func createSerdeSR(
 	return serde
 }
 
-func createTLSConfig(CARootFilepath string) (*tls.Config, error) {
+func createTLSConfig(CARootFilepath string) *tls.Config {
+	const op = "Main.createTLSConfig"
+
 	caRootPEM, err := os.ReadFile(CARootFilepath)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read CARootPEMFile: %w", err)
+		die(op, err)
 	}
 
 	rootCAs := x509.NewCertPool()
 	if ok := rootCAs.AppendCertsFromPEM(caRootPEM); !ok {
-		return nil, fmt.Errorf("failed to parse CARootPEM: %q", CARootFilepath)
+		err := fmt.Errorf("failed to parse CARootPEM: %q", CARootFilepath)
+		die(op, err)
 	}
 
-	c := &tls.Config{
+	return &tls.Config{
 		RootCAs:    rootCAs,
 		ClientAuth: tls.NoClientCert,
 	}
-	return c, nil
 }
 
 func die(op string, err error) {
