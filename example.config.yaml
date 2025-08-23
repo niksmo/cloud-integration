@@ -1,4 +1,5 @@
 # all fields are required
+
 log_level: 0 # info=0, debug=-4 (see std.slog package documentation)
 payments_gen_tick: 5s
 broker:
@@ -8,7 +9,7 @@ broker:
     - host-3.com
   topic: my_topic
   consumer_group: my_group
-  ca_root_cert: exapmle_caRoot.pem
+  ca_root_cert: example_caRoot.pem
   user: example_user
   pass: example_password
   schema_registry_urls:
