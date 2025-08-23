@@ -55,6 +55,10 @@ type Producer struct {
 func NewProducer(opts ...ProducerOpt) Producer {
 	const op = "NewProducer"
 
+	if len(opts) == 0 {
+		panic(fmt.Errorf("%s: options not set", op))
+	}
+
 	var options producerOpts
 	for _, opt := range opts {
 		if err := opt(&options); err != nil {

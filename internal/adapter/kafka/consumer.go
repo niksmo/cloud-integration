@@ -68,6 +68,10 @@ type Consumer struct {
 func NewConsumer(opts ...ConsumerOpt) Consumer {
 	const op = "NewConsumer"
 
+	if len(opts) == 0 {
+		panic(fmt.Errorf("%s: options not set", op))
+	}
+
 	var options consumerOpts
 	for _, opt := range opts {
 		if err := opt(&options); err != nil {

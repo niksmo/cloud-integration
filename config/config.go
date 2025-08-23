@@ -21,10 +21,16 @@ type brokerConfig struct {
 	SchemaRegistryURLs []string `mapstructure:"schema_registry_urls"`
 }
 
+type hdfsConfig struct {
+	Address string `mapstructure:"address"`
+	User    string `mapstructure:"user"`
+}
+
 type Config struct {
 	LogLevel        slog.Level    `mapstructure:"log_level"`
 	PaymentsGenTick time.Duration `mapstructure:"payments_gen_tick"`
 	Broker          brokerConfig  `mapstructure:"broker"`
+	HDFS            hdfsConfig    `mapstructure:"hdfs"`
 }
 
 func Load() Config {
@@ -73,6 +79,8 @@ func print(c Config) {
 	User=%q
 	Pass=%q
 	SchemaRegistryURLs=%q
+	HDFSAddress=%q
+	HDFSUser=%q
 
 `
 	fmt.Println("Loaded config:")
@@ -87,5 +95,7 @@ func print(c Config) {
 		c.Broker.User,
 		c.Broker.Pass,
 		c.Broker.SchemaRegistryURLs,
+		c.HDFS.Address,
+		c.HDFS.User,
 	)
 }

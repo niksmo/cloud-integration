@@ -17,3 +17,7 @@ type PaymentProducer interface {
 type PaymentReceiver interface {
 	ReceivePayments([]domain.Payment)
 }
+
+type PaymentsStorage interface {
+	Save([]domain.Payment) error
+}

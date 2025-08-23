@@ -4,15 +4,18 @@ log_level: 0 # info=0, debug=-4 (see std.slog package documentation)
 payments_gen_tick: 5s
 broker:
   seed_brokers:
-    - host-1.com
-    - host-2.com
-    - host-3.com
+    - broker-host-1.com
+    - broker-host-2.com
+    - broker-host-3.com
   topic: my_topic
   consumer_group: my_group
   ca_root_cert: example_caRoot.pem
   user: example_user
   pass: example_password
   schema_registry_urls:
-    - https://host-1.com
-    - https://host-2.com
-    - https://host-3.com
+    - https://sr-host-1.com
+    - https://sr-host-2.com
+    - https://sr-host-3.com
+hdfs:
+  address: hdfs-host
+  user: hdfs-user

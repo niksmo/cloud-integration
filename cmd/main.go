@@ -10,6 +10,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/colinmarc/hdfs/v2"
 	"github.com/niksmo/cloud-integration/config"
 	"github.com/niksmo/cloud-integration/internal/adapter"
 	"github.com/niksmo/cloud-integration/internal/adapter/kafka"
@@ -31,13 +32,18 @@ func main() {
 
 	kafkaCl := createKafkaClient(cfg)
 	serdeSR := createSerdeSR(sigCtx, cfg)
+	hdfsCl := createHDFSClient(cfg.HDFS.Address, cfg.HDFS.User)
 
 	producer := kafka.NewProducer(
 		kafka.ProducerClientOpt(kafkaCl),
 		kafka.ProducerEncodeFnOpt(serdeSR.Encode),
 	)
 
-	service := service.New(producer)
+	hdfsStorage := adapter.NewHDFStorage(
+		adapter.HDFSClientOpt(hdfsCl),
+	)
+
+	service := service.New(producer, hdfsStorage)
 
 	consumer := kafka.NewConsumer(
 		kafka.ConsumerClientOpt(kafkaCl),
@@ -53,6 +59,9 @@ func main() {
 	<-sigCtx.Done()
 	producer.Close()
 	consumer.Close()
+	hdfsStorage.Close(func(err error) {
+		slog.Error("failed to close hdfs storage", "err", err)
+	})
 	slog.Info("application is stopped")
 }
 
@@ -113,8 +122,10 @@ func createSerdeSR(
 		die(op, err)
 	}
 
+	subject := cfg.Broker.Topic + "-value"
+
 	ss, err := cl.CreateSchema(
-		ctx, cfg.Broker.Topic+"-value", schema.PaymentSchemaV1,
+		ctx, subject, schema.PaymentSchemaV1,
 	)
 	if err != nil {
 		die(op, err)
@@ -148,6 +159,21 @@ func createTLSConfig(CARootFilepath string) *tls.Config {
 		RootCAs:    rootCAs,
 		ClientAuth: tls.NoClientCert,
 	}
+}
+
+func createHDFSClient(address, user string) *hdfs.Client {
+	const op = "Main.createHDFSClient"
+
+	cl, err := hdfs.NewClient(hdfs.ClientOptions{
+		Addresses:           []string{address},
+		User:                user,
+		UseDatanodeHostname: true,
+	})
+	if err != nil {
+		die(op, err)
+	}
+
+	return cl
 }
 
 func die(op string, err error) {
