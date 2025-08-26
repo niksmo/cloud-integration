@@ -1,0 +1,55 @@
+// GET https://*.mdb.yandexcloud.net:443/topics/transactions
+{
+    "configs": {
+        "cleanup.policy": "delete",
+        "compression.type": "producer",
+        "delete.retention.ms": "86400000",
+        "file.delete.delay.ms": "60000",
+        "flush.messages": "9223372036854775807",
+        "flush.ms": "9223372036854775807",
+        "follower.replication.throttled.replicas": "",
+        "index.interval.bytes": "4096",
+        "leader.replication.throttled.replicas": "",
+        "max.compaction.lag.ms": "9223372036854775807",
+        "max.message.bytes": "1048588",
+        "message.downconversion.enable": "true",
+        "message.format.version": "3.0-IV1",
+        "message.timestamp.difference.max.ms": "9223372036854775807",
+        "message.timestamp.type": "CreateTime",
+        "min.cleanable.dirty.ratio": "0.5",
+        "min.compaction.lag.ms": "0",
+        "min.insync.replicas": "2",
+        "preallocate": "false",
+        "retention.bytes": "-1",
+        "retention.ms": "604800000",
+        "segment.bytes": "1073741824",
+        "segment.index.bytes": "10485760",
+        "segment.jitter.ms": "0",
+        "segment.ms": "604800000",
+        "unclean.leader.election.enable": "false"
+    },
+    "name": "transactions",
+    "partitions": [
+        {
+            "leader": 2,
+            "partition": 0,
+            "replicas": [
+                {
+                    "broker": 2,
+                    "in_sync": true,
+                    "leader": true
+                },
+                {
+                    "broker": 3,
+                    "in_sync": true,
+                    "leader": false
+                },
+                {
+                    "broker": 1,
+                    "in_sync": true,
+                    "leader": false
+                }
+            ]
+        }
+    ]
+}

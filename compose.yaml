@@ -1,0 +1,94 @@
+name: cloud-integration
+
+networks:
+  net:
+
+services:
+  namenode:
+      image: apache/hadoop:3.4.1
+      platform: linux/amd64
+      hostname: namenode
+      container_name: namenode
+      ports:
+        - 127.0.0.1:9870:9870  
+        - 127.0.0.1:9000:9000
+      deploy:
+        resources:
+          limits:
+            cpus: 1.0
+            memory: 2g
+      shm_size: 10G
+      volumes:
+        - ./hadoop/core-site.xml:/opt/hadoop/etc/hadoop/core-site.xml
+        - ./hadoop/hdfs-site-namenode.xml:/opt/hadoop/etc/hadoop/hdfs-site.xml
+        - ./hadoop/namenode_entrypoint.sh:/namenode_entrypoint.sh
+      user: root
+      entrypoint: ["/bin/bash", "/namenode_entrypoint.sh"]
+      command: ["hdfs", "namenode"]
+
+  
+  datanode-1:
+      image: apache/hadoop:3.4.1
+      platform: linux/amd64
+      hostname: datanode-1
+      container_name: datanode-1
+      ports:
+        - 127.0.0.1:9864:9864
+        - 127.0.0.1:9970:9970
+      deploy:
+        resources:
+          limits:
+            cpus: 1.0
+            memory: 2g
+      shm_size: 10G
+      volumes:
+        - ./hadoop/core-site.xml:/opt/hadoop/etc/hadoop/core-site.xml
+        - ./hadoop/hdfs-site-datanode-1.xml:/opt/hadoop/etc/hadoop/hdfs-site.xml
+        - ./hadoop/datanode_entrypoint.sh:/datanode_entrypoint.sh
+      user: root
+      entrypoint: ["/bin/bash", "/datanode_entrypoint.sh"]
+      command: ["hdfs", "datanode"]
+
+  datanode-2:
+    image: apache/hadoop:3.4.1
+    platform: linux/amd64
+    hostname: datanode-2
+    container_name: datanode-2
+    ports:
+      - 127.0.0.1:9865:9865
+      - 127.0.0.1:9971:9971
+    deploy:
+      resources:
+         limits:
+          cpus: 1.0  
+          memory: 2g
+    shm_size: 10G
+    volumes:
+      - ./hadoop/core-site.xml:/opt/hadoop/etc/hadoop/core-site.xml
+      - ./hadoop/hdfs-site-datanode-2.xml:/opt/hadoop/etc/hadoop/hdfs-site.xml
+      - ./hadoop/datanode_entrypoint.sh:/datanode_entrypoint.sh
+    user: root
+    entrypoint: ["/bin/bash", "/datanode_entrypoint.sh"]
+    command: ["hdfs", "datanode"]
+
+  datanode-3:
+    image: apache/hadoop:3.4.1
+    platform: linux/amd64
+    hostname: datanode-3
+    container_name: datanode-3
+    ports:
+      - 127.0.0.1:9866:9866
+      - 127.0.0.1:9972:9972
+    deploy:
+      resources:
+         limits:
+          cpus: 1.0  
+          memory: 2g
+    shm_size: 10G
+    volumes:
+      - ./hadoop/core-site.xml:/opt/hadoop/etc/hadoop/core-site.xml
+      - ./hadoop/hdfs-site-datanode-3.xml:/opt/hadoop/etc/hadoop/hdfs-site.xml
+      - ./hadoop/datanode_entrypoint.sh:/datanode_entrypoint.sh
+    user: root
+    entrypoint: ["/bin/bash", "/datanode_entrypoint.sh"]
+    command: ["hdfs", "datanode"]
